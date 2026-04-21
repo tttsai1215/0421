@@ -1,5 +1,6 @@
 let capture;
 let graphics;
+let bubbles = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -17,13 +18,21 @@ function draw() {
   let imgWidth = width * 0.6;
   let imgHeight = height * 0.6;
   
-  // 在 graphics 圖層上繪製內容（以紅色邊框與中心圓形為例）
+  // 在 graphics 圖層上繪製冒泡效果
   graphics.clear(); // 每次繪製前清除背景，維持透明
-  graphics.stroke(255, 0, 0); // 設定紅色線條
-  graphics.strokeWeight(5); // 設定線條粗細
-  graphics.noFill(); // 內部不填色
-  graphics.rect(0, 0, graphics.width, graphics.height); // 畫一個與影片同尺寸的矩形外框
-  graphics.circle(graphics.width / 2, graphics.height / 2, 100); // 畫一個位於正中央的圓形
+
+  // 每隔一段時間隨機產生新的泡泡
+  if (random(1) < 0.3) {
+    bubbles.push(new Bubble());
+  }
+  // 更新並顯示所有泡泡
+  for (let i = bubbles.length - 1; i >= 0; i--) {
+    bubbles[i].update();
+    bubbles[i].show();
+    if (bubbles[i].finished()) {
+      bubbles.splice(i, 1); // 如果泡泡超出畫面，就從陣列中移除
+    }
+  }
   
   // 繪製攝影機影像（利用水平翻轉修正左右顛倒）
   push(); // 儲存目前的繪圖設定（避免影響到後續其他可能繪製的圖形）
@@ -40,4 +49,36 @@ function draw() {
   image(graphics, 0, 0, imgWidth, imgHeight);
   
   pop(); // 恢復先前的繪圖設定
+}
+
+// 定義泡泡的 class
+class Bubble {
+  constructor() {
+    // 泡泡從 graphics 圖層的底部隨機位置出現
+    this.x = random(graphics.width);
+    this.y = graphics.height + random(20);
+    this.r = random(5, 20); // 泡泡的半徑
+    this.vx = random(-0.5, 0.5); // 水平漂移速度
+    this.vy = random(-1, -4); // 垂直上升速度
+    this.alpha = random(100, 200); // 透明度
+  }
+
+  // 檢查泡泡是否已超出畫面頂部
+  finished() {
+    return this.y < -this.r;
+  }
+
+  // 更新泡泡位置
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+  }
+
+  // 在 graphics 圖層上畫出泡泡
+  show() {
+    graphics.noFill();
+    graphics.stroke(255, this.alpha);
+    graphics.strokeWeight(2);
+    graphics.ellipse(this.x, this.y, this.r * 2);
+  }
 }
