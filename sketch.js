@@ -9,6 +9,13 @@ function setup() {
   
   // 使用 createGraphics 產生與縮放後視訊畫面相同寬高的圖層
   graphics = createGraphics(windowWidth * 0.6, windowHeight * 0.6);
+  
+  // 建立拍照按鈕，並放置於視訊畫面下方
+  let btn = createButton('拍照儲存 (Take Photo)');
+  btn.position(windowWidth / 2 - 75, windowHeight * 0.85);
+  btn.style('padding', '10px 20px');
+  btn.style('font-size', '16px');
+  btn.mousePressed(takeSnapshot);
 }
 
 function draw() {
@@ -49,6 +56,17 @@ function draw() {
   image(graphics, 0, 0, imgWidth, imgHeight);
   
   pop(); // 恢復先前的繪圖設定
+}
+
+// 拍照功能：擷取視訊畫面區域並存檔
+function takeSnapshot() {
+  let imgWidth = width * 0.6;
+  let imgHeight = height * 0.6;
+  let startX = (width - imgWidth) / 2; // 計算畫面擷取的起始 X 座標
+  let startY = (height - imgHeight) / 2; // 計算畫面擷取的起始 Y 座標
+  
+  let snapshot = get(startX, startY, imgWidth, imgHeight); // 擷取畫布上特定範圍的畫面
+  snapshot.save('photo', 'jpg'); // 將擷取下來的圖片儲存為 photo.jpg
 }
 
 // 定義泡泡的 class
