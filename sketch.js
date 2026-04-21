@@ -13,10 +13,11 @@ function draw() {
   let imgWidth = width * 0.6;
   let imgHeight = height * 0.6;
   
-  // 計算將影像置中的 X 與 Y 座標
-  let x = (width - imgWidth) / 2;
-  let y = (height - imgHeight) / 2;
-  
-  // 繪製攝影機影像
-  image(capture, x, y, imgWidth, imgHeight);
+  // 繪製攝影機影像（利用水平翻轉修正左右顛倒）
+  push(); // 儲存目前的繪圖設定（避免影響到後續其他可能繪製的圖形）
+  translate(width / 2, height / 2); // 將畫布座標原點移動到畫面正中央
+  scale(-1, 1); // 將 X 軸縮放 -1，達到水平翻轉的效果
+  imageMode(CENTER); // 設定影像繪製模式為「中心點對齊」
+  image(capture, 0, 0, imgWidth, imgHeight); // 在新的原點 (0, 0) 畫出影像
+  pop(); // 恢復先前的繪圖設定
 }
