@@ -47,8 +47,31 @@ function draw() {
   
   push(); // 針對影片翻轉再包一層，避免接下來的 graphics 也被翻轉
   scale(-1, 1); // 將 X 軸縮放 -1，達到水平翻轉的效果
-  imageMode(CENTER); // 設定影像繪製模式為「中心點對齊」
-  image(capture, 0, 0, imgWidth, imgHeight); // 在新的原點 (0, 0) 畫出影像
+  
+  // 讀取視訊當前畫面的像素資料
+  capture.loadPixels();
+  if (capture.pixels.length > 0) { // 確保攝影機已經載入畫面
+    let stepSize = 20; // 設定單位大小為 20x20
+    let wRatio = imgWidth / capture.width; // 計算畫布顯示的寬度比例
+    let hRatio = imgHeight / capture.height; // 計算畫布顯示的高度比例
+    
+    push();
+    translate(-imgWidth / 2, -imgHeight / 2); // 將繪圖起點移至影像區域的左上角
+    noStroke(); // 單位方塊不需要邊框
+    for (let y = 0; y < capture.height; y += stepSize) {
+      for (let x = 0; x < capture.width; x += stepSize) {
+        let index = (y * capture.width + x) * 4; // 計算一維陣列中的像素索引 (R, G, B, A)
+        let r = capture.pixels[index];
+        let g = capture.pixels[index + 1];
+        let b = capture.pixels[index + 2];
+        let gray = (r + g + b) / 3; // 取 RGB 平均值轉換為灰階
+        
+        fill(gray); // 設定方塊顏色為計算出的灰階值
+        rect(x * wRatio, y * hRatio, stepSize * wRatio, stepSize * hRatio); // 畫出該單位的方塊
+      }
+    }
+    pop();
+  }
   pop(); // 恢復影片的翻轉設定
   
   // 疊加 graphics 圖片在視訊畫面的上方
